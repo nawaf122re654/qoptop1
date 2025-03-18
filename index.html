@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مطور Discord.js</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFD700',  // Yellow
+                        secondary: '#000000' // Black
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+        }
+        .project-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+            opacity: 0;
+            display: block;
+        }
+        .project-details.expanded {
+            max-height: 500px;
+            opacity: 1;
+        }
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Enhanced fade-in animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Improved hover effects */
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(255, 215, 0, 0.3);
+        }
+        /* Gradient border effect */
+        .btn-hover {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        .btn-hover::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .btn-hover:hover::before {
+            opacity: 1;
+        }
+        /* Pulse animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse-effect {
+            animation: pulse 2s infinite;
+        }
+        /* Section separator */
+        .section-separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            margin: 4rem 0;
+        }
+/* Remove extra closing brace that was causing the at-rule/selector error */
+        .project-details.expanded {
+            max-height: 500px;
+            opacity: 1;
+        }
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Fade-in animation for sections */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Hover effects for project cards */
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.2);
+        }
+        /* Navigation link hover effect */
+        nav a {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            right: 0;
+            background-color: #FFD700;
+            transition: width 0.3s ease;
+        }
+        nav a:hover::after {
+            width: 100%;
+            right: auto;
+            left: 0;
+        }
+        /* Button hover animation */
+        .btn-hover {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        .btn-hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: width 0.3s ease;
+        }
+        .btn-hover:hover::before {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-secondary text-white font-cairo">
+    <!-- Header/Navigation -->
+    <header class="bg-secondary py-4 fixed w-full top-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-primary text-2xl font-bold">مطور Discord.js</h1>
+                <ul class="flex space-x-6 space-x-reverse">
+                    <li><a href="#home" class="text-primary hover:text-yellow-300">الرئيسية</a></li>
+                    <li><a href="#about" class="text-primary hover:text-yellow-300">عني</a></li>
+                    <li><a href="#skills" class="text-primary hover:text-yellow-300">مهاراتي</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center pt-16 bg-gradient-to-b from-secondary to-gray-900 fade-in">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-5xl font-bold mb-6 text-primary">أهلًا وسهلًا بكم</h2>
+            <p class="text-2xl mb-8">مطور سعودي متخصص في Discord.js</p>
+            <div class="flex justify-center space-x-4 space-x-reverse">
+                <a href="#portfolio" class="bg-primary text-secondary px-4 py-2 rounded-lg font-bold btn-hover">Discord.js v13</a>
+                <a href="#portfolio" class="bg-primary text-secondary px-4 py-2 rounded-lg font-bold btn-hover">Discord.js v14</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-gray-900 fade-in">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-primary mb-12 text-center">من انا ؟ </h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-lg leading-relaxed mb-6">
+                    أنا مطور سعودي، متخصص في تطوير بوتات Discord باستخدام Discord.js. عندي خبرة كبيرة في الإصدارين 13 و 14،
+                    وأقوم بتصميم حلول مبتكرة ومخصضة لمجتمعات Discord.
+                </p>
+                <p class="text-lg leading-relaxed">
+                    دائمًا أسعى لتطوير مهاراتي وتعلم التقنيات الجديدة عشان أقدم أفضل الحلول الممكنة.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-secondary fade-in">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-primary mb-12 text-center">اعمالي</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-gray-900 p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-primary mb-4">Discord.js v13</h3>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-check text-primary ml-2"></i>إنشاء وإدارة الأوامر</li>
+                        <li><i class="fas fa-check text-primary ml-2"></i>التعامل مع الأحداث</li>
+                        <li><i class="fas fa-check text-primary ml-2"></i>إدارة الأدوار والصلاحيات</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-primary mb-4">Discord.js v14</h3>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-check text-primary ml-2"></i>تطوير الأوامر التفاعلية</li>
+                        <li><i class="fas fa-check text-primary ml-2"></i>إدارة الأزرار والقوائم</li>
+                        <li><i class="fas fa-check text-primary ml-2"></i>التعامل مع API Discord</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-secondary fade-in">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-primary mb-12 text-center">اعمالي</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project Card 1 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden project-card">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-primary mb-4">مشروع Discord.js v13</h3>
+                        <p class="text-gray-300 mb-4">بوت شوب متعدد المهام مع نظام إداري متكامل</p>
+                        <div class="project-details mb-4">
+                            <h4 class="text-xl font-bold text-primary mb-2">المميزات الرئيسية:</h4>
+                            <ul class="list-disc list-inside text-gray-300 space-y-2">
+                                <li>نظام إدارة متكامل للأدوار والصلاحيات</li>
+                                <li>نظام تحذيرات وعقوبات متكامل</li>
+                                <li>نظام شراء تلقائي</li>
+                            </ul>
+                            <div class="mt-4">
+                                <h4 class="text-xl font-bold text-primary mb-2">التقنيات المستخدمة:</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-primary text-secondary px-2 py-1 rounded text-sm">Discord.js v13</span>
+                                    <span class="bg-primary text-secondary px-2 py-1 rounded text-sm">Node.js</span>
+                                    <span class="bg-primary text-secondary px-2 py-1 rounded text-sm">pro.db</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="toggleDetails(this)" class="text-primary hover:text-yellow-300 flex items-center">
+                                <i class="fas fa-chevron-down mr-2"></i>
+                                <span>عرض المزيد</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project Card 2 -->
+                <div class="bg-gray-900 rounded-lg overflow-hidden project-card">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-primary mb-4">مشروع Discord.js v14</h3>
+                        <p class="text-gray-300 mb-4">بوت مزاد حديث مع واجهة مستخدم متطورة</p>
+                        <div class="project-details mb-4">
+                            <h4 class="text-xl font-bold text-primary mb-2">المميزات الرئيسية:</h4>
+                            <ul class="list-disc list-inside text-gray-300 space-y-2">
+                                <li>أوامر تفاعلية (Slash Commands) متكاملة</li>
+                                <li>نظام قوائم وأزرار تفاعلية</li>
+                                <li>نظام تذاكر دعم متقدم</li>
+                                <li>نظام مزاد وإحصائيات</li>
+                            </ul>
+                            <div class="mt-4">
+                                <h4 class="text-xl font-bold text-primary mb-2">التقنيات المستخدمة:</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-primary text-secondary px-2 py-1 rounded text-sm">Discord.js v14</span>
+                                    <span class="bg-primary text-secondary px-2 py-1 rounded text-sm">Node.js</span>
+                                    <span class="bg-primary text-secondary px-2 py-1 rounded text-sm">pro.db</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="toggleDetails(this)" class="text-primary hover:text-yellow-300 flex items-center">
+                                <i class="fas fa-chevron-down mr-2"></i>
+                                <span>عرض المزيد</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-900 fade-in">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-primary mb-12 text-center">تواصل معي</h2>
+            <div class="max-w-3xl mx-auto text-center">
+                <a href="https://discord.gg/hKSzNf2np5" class="bg-primary text-secondary px-6 py-3 rounded-lg font-bold btn-hover">Discord</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleDetails(button) {
+            const details = button.closest('.project-card').querySelector('.project-details');
+            details.classList.toggle('expanded');
+            const icon = button.querySelector('i');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        // Observe all sections with fade-in class
+        document.querySelectorAll('.fade-in').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                header.style.boxShadow = '0 2px 10px rgba(255, 215, 0, 0.1)';
+            } else {
+                header.style.backgroundColor = '#000000';
+                header.style.boxShadow = 'none';
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="bg-secondary py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-primary">&copy; 2024 جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+<style>
+    /* Enhanced smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 4rem;
+    }
+    /* Improved navigation link hover effect */
+    nav a {
+        position: relative;
+        transition: color 0.3s ease;
+    }
+    nav a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        right: 0;
+        background-color: #FFD700;
+        transition: width 0.3s ease;
+    }
+    nav a:hover::after {
+        width: 100%;
+        right: auto;
+        left: 0;
+    }
+    /* Enhanced button hover animation */
+    .btn-hover {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    }
+    .btn-hover::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transition: width 0.3s ease;
+    }
+    .btn-hover:hover::before {
+        width: 100%;
+    }
+</style>
+</body>
+</html>
